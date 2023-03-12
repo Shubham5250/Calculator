@@ -50,7 +50,9 @@ class _CalculatorState extends State<Calculator> {
   Widget calcButton(String btnText, Color btnColor, Color textColor) {
     return Container(
       child: ElevatedButton(
-        onPressed: (() {}),
+        onPressed: (() {
+          calculation(btnText);
+        }),
         child: Text(
           btnText,
           style: TextStyle(fontSize: 35, color: textColor),
@@ -70,6 +72,7 @@ class _CalculatorState extends State<Calculator> {
       backgroundColor: Colors.black54,
       appBar: AppBar(
         title: const Text("Calculator"),
+        backgroundColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -79,21 +82,23 @@ class _CalculatorState extends State<Calculator> {
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: const [
+              children: [
                 Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
-                    "0",
+                    text,
                     textAlign: TextAlign.left,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 50,
+                      fontSize: 80,
                     ),
                   ),
-                ),
+                )
               ],
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -104,7 +109,9 @@ class _CalculatorState extends State<Calculator> {
                 calcButton('÷', Colors.orangeAccent, Colors.white),
               ],
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -115,7 +122,9 @@ class _CalculatorState extends State<Calculator> {
                 calcButton('x', Colors.orangeAccent, Colors.white),
               ],
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -126,7 +135,9 @@ class _CalculatorState extends State<Calculator> {
                 calcButton('-', Colors.orangeAccent, Colors.white),
               ],
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -137,7 +148,9 @@ class _CalculatorState extends State<Calculator> {
                 calcButton('+', Colors.orangeAccent, Colors.white),
               ],
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -148,10 +161,115 @@ class _CalculatorState extends State<Calculator> {
                 calcButton('=', Colors.orangeAccent, Colors.white),
               ],
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
           ],
         ),
       ),
     );
+  }
+
+  // Here is the LOGIC for the Calculator
+
+  dynamic text = '0';
+  double numFirst = 0;
+  double numSecond = 0;
+
+  dynamic result = '';
+  dynamic finalResult = '';
+  dynamic operator = '';
+  dynamic preOperator = '';
+
+
+
+  void calculation(btnText) {
+    if (btnText == 'AC') {
+      text = '0';
+      numFirst = 0;
+      numSecond = 0;
+      result = '';
+      finalResult = '0';
+      operator = '';
+      preOperator = '';
+    } else if (btnText == '+' ||
+        btnText == '-' ||
+        btnText == '÷' ||
+        btnText == 'x' ||
+        btnText == '=') {
+      if (numFirst == 0) {
+        numFirst = double.parse(result);
+      } else {
+        numSecond = double.parse(result);
+      }
+      if (operator == '+') {
+        finalResult = add();
+      } else if (operator == '-') {
+        finalResult = subtract();
+      } else if (operator == 'x') {
+        finalResult = multiply();
+      } else if (operator == '÷') {
+        finalResult = divide();
+      } else if (operator == '-') {
+        finalResult = subtract();
+      }
+
+      preOperator = operator;
+      operator = btnText;
+      result = '';
+    } else if (btnText == '%') {
+      result = numFirst / 100;
+      finalResult = containDecimal(result);
+    } else if (btnText == '.') {
+      if (!result.toString().contains('.')) {
+        result = result.toString() + '.';
+      }
+      finalResult = result;
+    } else if (btnText == '+/-') {
+      result.toString().startsWith('-')
+          ? result = result.toString().substring(1)
+          : result = '-' + result.toString();
+    } else {
+      result = result + btnText;
+      finalResult = result;
+    }
+
+    setState(() {
+      text = finalResult;
+    });
+  }
+
+  String add() {
+    result = (numFirst + numSecond).toString();
+    numFirst = double.parse(result);
+    return containDecimal(result);
+  }
+
+  String subtract() {
+    result = (numFirst - numSecond).toString();
+    numFirst = double.parse(result);
+    return containDecimal(result);
+  }
+
+  String multiply() {
+    result = (numFirst * numSecond).toString();
+    numFirst = double.parse(result);
+    return containDecimal(result);
+  }
+
+  String divide() {
+    result = (numFirst / numSecond).toString();
+    numFirst = double.parse(result);
+    return containDecimal(result);
+  }
+
+  String containDecimal(dynamic result) {
+    if (result.toString().contains('.')) {
+      List<String> splitDecimal = result.toString().split('.');
+      if (!(int.parse(splitDecimal[1]) > 0)) {
+        return result = splitDecimal[0].toString();
+      }
+    }
+    return result;
   }
 }
